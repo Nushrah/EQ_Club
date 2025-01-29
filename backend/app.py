@@ -20,6 +20,14 @@ def serve_sample_files(filename):
         return send_file(file_path, as_attachment=True)  # Force download
     return abort(404, description=f"Sample file '{filename}' not found.")
 
+@app.route('/uploads/<path:filename>')
+def serve_uploaded_files(filename):
+    """ Serve uploaded files with an absolute path """
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return send_file(file_path, as_attachment=True)  # Force download
+    return abort(404, description=f"Uploaded file '{filename}' not found.")
+
 # Serve the frontend when the root URL is accessed
 @app.route('/')
 def index():
