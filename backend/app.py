@@ -5,13 +5,19 @@ import shutil
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = './backend/uploads'
-SAMPLES_FOLDER = './backend/samples'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Get current app directory
+
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+SAMPLES_FOLDER = os.path.join(BASE_DIR, 'samples')
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(SAMPLES_FOLDER, exist_ok=True)
 
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
+    file_path = os.path.join(SAMPLES_FOLDER, filename)
+    if not os.path.isfile(file_path):
+        return f"Error: Sample file '{filename}' not found.", 404
     return send_from_directory(SAMPLES_FOLDER, filename)
 
 # Serve the frontend when the root URL is accessed
