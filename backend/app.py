@@ -5,36 +5,38 @@ import shutil
 
 app = Flask(__name__)
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # backend/
-SAMPLES_FOLDER = os.path.join(BASE_DIR, 'samples')
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+# Use /tmp/ because Heroku allows read/write access here
+TMP_SAMPLES = "/tmp/samples"
+TMP_UPLOADS = "/tmp/uploads"
 
-os.makedirs(SAMPLES_FOLDER, exist_ok=True)
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Ensure directories exist on startup
+os.makedirs(TMP_SAMPLES, exist_ok=True)
+os.makedirs(TMP_UPLOADS, exist_ok=True)
 
-def ensure_permissions(file_path):
-    """ Ensure Flask has permission to serve files """
-    if os.path.exists(file_path):
-        os.chmod(file_path, 0o644)  # Make it readable by Flask
+# Move sample files to /tmp/samples/ on startup
+SAMPLES_SOURCE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'samples')
+if os.path.exists(SAMPLES_SOURCE):
+    for file_name in os.listdir(SAMPLES_SOURCE):
+        src_path = os.path.join(SAMPLES_SOURCE, file_name)
+        dest_path = os.path.join(TMP_SAMPLES, file_name)
+        if os.path.isfile(src_path):
+            shutil.copy2(src_path, dest_path)  # Copy file with metadata
 
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
-    """ Serve sample files securely """
-    file_path = os.path.join(SAMPLES_FOLDER, filename)
+    """ Serve sample files from /tmp/samples """
+    file_path = os.path.join(TMP_SAMPLES, filename)
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        ensure_permissions(file_path)  # Fix permissions before serving
-        return send_from_directory(SAMPLES_FOLDER, filename, as_attachment=True)
+        return send_file(file_path, as_attachment=True)
     return abort(404, description=f"Sample file '{filename}' not found.")
 
 @app.route('/uploads/<path:filename>')
 def serve_uploaded_files(filename):
-    """ Serve uploaded files securely """
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    """ Serve uploaded files from /tmp/uploads """
+    file_path = os.path.join(TMP_UPLOADS, filename)
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        ensure_permissions(file_path)  # Fix permissions before serving
-        return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+        return send_file(file_path, as_attachment=True)
     return abort(404, description=f"Uploaded file '{filename}' not found.")
-
 
 # Serve the frontend when the root URL is accessed
 @app.route('/')
@@ -65,7 +67,7 @@ def process_file():
     if file.filename == '':
         return "No file selected", 400
 
-    filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+    filepath = os.path.join(TMP_UPLOADS, file.filename)
     file.save(filepath)
 
     try:
@@ -78,11 +80,11 @@ def process_file():
     except Exception as e:
         return f"Error: {str(e)}", 500
 
-# **NEW: Process Sample Files by Copying to Uploads Folder First**
+# Process Sample Files by Copying to Uploads Folder First
 @app.route('/process_sample/<path:filename>', methods=['POST'])
 def process_sample_file(filename):
-    sample_path = os.path.join(SAMPLES_FOLDER, filename)
-    upload_path = os.path.join(UPLOAD_FOLDER, filename)
+    sample_path = os.path.join(TMP_SAMPLES, filename)
+    upload_path = os.path.join(TMP_UPLOADS, filename)
 
     if not os.path.isfile(sample_path):
         return f"Error: Sample file '{filename}' not found.", 404
