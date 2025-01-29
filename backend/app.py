@@ -15,26 +15,26 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def ensure_permissions(file_path):
     """ Ensure Flask has permission to serve files """
     if os.path.exists(file_path):
-        os.chmod(file_path, 0o644)  # Make it readable for everyone
-
+        os.chmod(file_path, 0o644)  # Make it readable by Flask
 
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
-    """ Serve sample files with fixed permissions """
+    """ Serve sample files securely """
     file_path = os.path.join(SAMPLES_FOLDER, filename)
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        ensure_permissions(file_path)  # Fix permissions before sending
-        return send_file(file_path, as_attachment=True)
+        ensure_permissions(file_path)  # Fix permissions before serving
+        return send_from_directory(SAMPLES_FOLDER, filename, as_attachment=True)
     return abort(404, description=f"Sample file '{filename}' not found.")
 
 @app.route('/uploads/<path:filename>')
 def serve_uploaded_files(filename):
-    """ Serve uploaded files with fixed permissions """
+    """ Serve uploaded files securely """
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        ensure_permissions(file_path)  # Fix permissions before sending
-        return send_file(file_path, as_attachment=True)
+        ensure_permissions(file_path)  # Fix permissions before serving
+        return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
     return abort(404, description=f"Uploaded file '{filename}' not found.")
+
 
 # Serve the frontend when the root URL is accessed
 @app.route('/')
