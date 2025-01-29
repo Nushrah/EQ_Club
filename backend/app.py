@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, send_file, abort
 import subprocess
 import os
 import shutil
@@ -6,16 +6,19 @@ import shutil
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # backend/
-SAMPLES_FOLDER = os.path.join(BASE_DIR, 'samples')  # backend/samples
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')  # backend/uploads
+SAMPLES_FOLDER = os.path.join(BASE_DIR, 'samples')
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 
 os.makedirs(SAMPLES_FOLDER, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
-    """ Serve files from the samples folder """
-    return send_from_directory(SAMPLES_FOLDER, filename)
+    """ Serve sample files with an absolute path """
+    file_path = os.path.join(SAMPLES_FOLDER, filename)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return send_file(file_path, as_attachment=True)  # Force download
+    return abort(404, description=f"Sample file '{filename}' not found.")
 
 # Serve the frontend when the root URL is accessed
 @app.route('/')
