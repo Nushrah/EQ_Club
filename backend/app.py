@@ -12,20 +12,27 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 os.makedirs(SAMPLES_FOLDER, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+def ensure_permissions(file_path):
+    """ Ensure Flask has permission to serve files """
+    if os.path.exists(file_path):
+        os.chmod(file_path, 0o755)  # Set file permission to 755
+
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
-    """ Serve sample files with an absolute path """
+    """ Serve sample files with fixed permissions """
     file_path = os.path.join(SAMPLES_FOLDER, filename)
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        return send_file(file_path, as_attachment=True)  # Force download
+        ensure_permissions(file_path)  # Fix permissions before sending
+        return send_file(file_path, as_attachment=True)
     return abort(404, description=f"Sample file '{filename}' not found.")
 
 @app.route('/uploads/<path:filename>')
 def serve_uploaded_files(filename):
-    """ Serve uploaded files with an absolute path """
+    """ Serve uploaded files with fixed permissions """
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        return send_file(file_path, as_attachment=True)  # Force download
+        ensure_permissions(file_path)  # Fix permissions before sending
+        return send_file(file_path, as_attachment=True)
     return abort(404, description=f"Uploaded file '{filename}' not found.")
 
 # Serve the frontend when the root URL is accessed
