@@ -15,7 +15,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def ensure_permissions(file_path):
     """ Ensure Flask has permission to serve files """
     if os.path.exists(file_path):
-        os.chmod(file_path, 0o755)  # Set file permission to 755
+        os.chmod(file_path, 0o644)  # Make it readable for everyone
+
 
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
