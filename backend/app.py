@@ -7,10 +7,10 @@ app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # backend/
 SAMPLES_FOLDER = os.path.join(BASE_DIR, 'samples')  # backend/samples
-UPLOADS_FOLDER = os.path.join(BASE_DIR, 'uploads')  # backend/uploads
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')  # backend/uploads
 
 os.makedirs(SAMPLES_FOLDER, exist_ok=True)
-os.makedirs(UPLOADS_FOLDER, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
