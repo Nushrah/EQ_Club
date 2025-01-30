@@ -10,6 +10,7 @@ document.getElementById('fileForm').addEventListener('submit', async (e) => {
         document.getElementById('output').innerText = "Error: No file selected.";
         return;
     }
+    
     formData.append('file', fileInput.files[0]);
 
     try {
