@@ -19,6 +19,7 @@ os.makedirs(TMP_UPLOADS, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Points to 'backend/'
 JAVA_OUT_DIR = os.path.join(BASE_DIR, '..', 'java', 'out')  # => Equipment_Club/java/out
 SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
+JAVA_BIN = "/app/.apt/usr/bin/java"
 
 SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
 if os.path.exists(SAMPLES_SOURCE) and os.listdir(SAMPLES_SOURCE):
@@ -87,18 +88,13 @@ def process_file():
 
     try:
         # Run the Java program with the uploaded file
-        result = subprocess.run(['java','-cp', JAVA_OUT_DIR,'Main',filepath],
+        result = subprocess.run([JAVA_BIN, '-cp', JAVA_OUT_DIR, 'Main', filepath],
             capture_output=True, text=True
         )
         return result.stdout  # Return the output from the Java program
     except Exception as e:
         return f"Error: {str(e)}", 500
     
-@app.route("/debug/which_java")
-def which_java():
-    import subprocess
-    result = subprocess.run(["which", "java"], capture_output=True, text=True)
-    return f"which java:\nstdout={result.stdout}\nstderr={result.stderr}\n"
 
 
 @app.route('/process_sample/<path:filename>', methods=['POST'])
@@ -115,7 +111,7 @@ def process_sample_file(filename):
 
     # Process the copied file just like a normal uploaded file
     try:
-        result = subprocess.run(['java','-cp', JAVA_OUT_DIR,'Main',upload_path],
+        result = subprocess.run([JAVA_BIN, '-cp', JAVA_OUT_DIR, 'Main', upload_path],
             capture_output=True, text=True
         )
         return result.stdout
