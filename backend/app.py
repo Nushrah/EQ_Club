@@ -13,20 +13,21 @@ TMP_UPLOADS = "/tmp/uploads"
 os.makedirs(TMP_SAMPLES, exist_ok=True)
 os.makedirs(TMP_UPLOADS, exist_ok=True)
 
-# Source directory where sample files should exist in the repo
-SAMPLES_SOURCE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'samples')
+# Define the source directory inside the repo
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Points to 'backend/'
+SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
 
-# Move sample files to /tmp/samples/ on startup
-# **Fix: Only copy if the source exists**
-if os.path.exists(SAMPLES_SOURCE):
-    print("Copying sample files to /tmp/samples/...")
+# **Ensure sample files are copied on startup**
+if os.path.exists(SAMPLES_SOURCE) and os.listdir(SAMPLES_SOURCE):
+    print("✅ Copying sample files to /tmp/samples/...")
     for file_name in os.listdir(SAMPLES_SOURCE):
         src_path = os.path.join(SAMPLES_SOURCE, file_name)
         dest_path = os.path.join(TMP_SAMPLES, file_name)
         if os.path.isfile(src_path):
-            shutil.copy2(src_path, dest_path)  # Copy file with metadata
+            shutil.copy2(src_path, dest_path)  # Copy files with metadata
+    print("✅ Sample files copied successfully.")
 else:
-    print("Warning: 'samples/' directory is missing. No files copied to /tmp/samples/.")
+    print("❌ WARNING: 'backend/samples/' is missing or empty. No files copied.")
 
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
@@ -86,7 +87,6 @@ def process_file():
     except Exception as e:
         return f"Error: {str(e)}", 500
 
-# Process Sample Files by Copying to Uploads Folder First
 @app.route('/process_sample/<path:filename>', methods=['POST'])
 def process_sample_file(filename):
     """ Copy sample file to /tmp/uploads/ and process it """
