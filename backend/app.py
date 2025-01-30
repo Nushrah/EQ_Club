@@ -19,7 +19,7 @@ os.makedirs(TMP_UPLOADS, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Points to 'backend/'
 JAVA_OUT_DIR = os.path.join(BASE_DIR, '..', 'java', 'out')  # => Equipment_Club/java/out
 SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
-JAVA_BIN = "/app/.apt/usr/bin/java"
+JAVA_BIN = "/app/.apt/usr/lib/jvm/java-17-openjdk-amd64/bin/java /app/.apt/usr/share/java"
 
 SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
 if os.path.exists(SAMPLES_SOURCE) and os.listdir(SAMPLES_SOURCE):
@@ -36,16 +36,6 @@ if os.path.exists(SAMPLES_SOURCE) and os.listdir(SAMPLES_SOURCE):
     print("✅ Sample files copied successfully.")
 else:
     print("❌ WARNING: 'backend/samples/' is missing or empty. No files copied.")
-
-
-@app.route('/debug/find_java')
-def debug_find_java():
-    import subprocess
-    result = subprocess.run(
-        ["find", "/app/.apt/", "-name", "java"],
-        capture_output=True, text=True
-    )
-    return f"find java:\nstdout={result.stdout}\nstderr={result.stderr}\n"
 
 
 
