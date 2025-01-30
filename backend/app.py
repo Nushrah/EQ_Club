@@ -13,14 +13,20 @@ TMP_UPLOADS = "/tmp/uploads"
 os.makedirs(TMP_SAMPLES, exist_ok=True)
 os.makedirs(TMP_UPLOADS, exist_ok=True)
 
-# Move sample files to /tmp/samples/ on startup
+# Source directory where sample files should exist in the repo
 SAMPLES_SOURCE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'samples')
+
+# Move sample files to /tmp/samples/ on startup
+# **Fix: Only copy if the source exists**
 if os.path.exists(SAMPLES_SOURCE):
+    print("Copying sample files to /tmp/samples/...")
     for file_name in os.listdir(SAMPLES_SOURCE):
         src_path = os.path.join(SAMPLES_SOURCE, file_name)
         dest_path = os.path.join(TMP_SAMPLES, file_name)
         if os.path.isfile(src_path):
             shutil.copy2(src_path, dest_path)  # Copy file with metadata
+else:
+    print("Warning: 'samples/' directory is missing. No files copied to /tmp/samples/.")
 
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
@@ -83,13 +89,14 @@ def process_file():
 # Process Sample Files by Copying to Uploads Folder First
 @app.route('/process_sample/<path:filename>', methods=['POST'])
 def process_sample_file(filename):
+    """ Copy sample file to /tmp/uploads/ and process it """
     sample_path = os.path.join(TMP_SAMPLES, filename)
     upload_path = os.path.join(TMP_UPLOADS, filename)
 
     if not os.path.isfile(sample_path):
         return f"Error: Sample file '{filename}' not found.", 404
 
-    # Copy the sample file to the uploads folder
+    # Copy the sample file to /tmp/uploads
     shutil.copy(sample_path, upload_path)
 
     # Process the copied file just like a normal uploaded file
