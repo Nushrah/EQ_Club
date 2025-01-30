@@ -38,6 +38,17 @@ else:
     print("❌ WARNING: 'backend/samples/' is missing or empty. No files copied.")
 
 
+@app.route('/debug/find_java')
+def debug_find_java():
+    import subprocess
+    result = subprocess.run(
+        ["find", "/app/.apt/", "-name", "java"],
+        capture_output=True, text=True
+    )
+    return f"find java:\nstdout={result.stdout}\nstderr={result.stderr}\n"
+
+
+
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
     """ Serve sample files from /tmp/samples """
