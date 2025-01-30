@@ -17,7 +17,13 @@ os.makedirs(TMP_UPLOADS, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Points to 'backend/'
 SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
 
-# **Ensure sample files are copied on startup**
+import os
+import shutil
+import stat
+
+# ...
+
+SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
 if os.path.exists(SAMPLES_SOURCE) and os.listdir(SAMPLES_SOURCE):
     print("✅ Copying sample files to /tmp/samples/...")
     for file_name in os.listdir(SAMPLES_SOURCE):
@@ -25,9 +31,14 @@ if os.path.exists(SAMPLES_SOURCE) and os.listdir(SAMPLES_SOURCE):
         dest_path = os.path.join(TMP_SAMPLES, file_name)
         if os.path.isfile(src_path):
             shutil.copy2(src_path, dest_path)  # Copy files with metadata
+            
+            # Force world-readable permissions: -rw-r--r--
+            os.chmod(dest_path, 0o644)
+
     print("✅ Sample files copied successfully.")
 else:
     print("❌ WARNING: 'backend/samples/' is missing or empty. No files copied.")
+
 
 @app.route('/samples/<path:filename>')
 def serve_sample_files(filename):
