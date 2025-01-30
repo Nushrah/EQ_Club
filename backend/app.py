@@ -93,6 +93,13 @@ def process_file():
         return result.stdout  # Return the output from the Java program
     except Exception as e:
         return f"Error: {str(e)}", 500
+    
+@app.route("/debug/which_java")
+def which_java():
+    import subprocess
+    result = subprocess.run(["which", "java"], capture_output=True, text=True)
+    return f"which java:\nstdout={result.stdout}\nstderr={result.stderr}\n"
+
 
 @app.route('/process_sample/<path:filename>', methods=['POST'])
 def process_sample_file(filename):
