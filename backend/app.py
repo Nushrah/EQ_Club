@@ -2,8 +2,10 @@ from flask import Flask, request, send_from_directory, send_file, abort
 import subprocess
 import os
 import shutil
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Use /tmp/ because Heroku allows read/write access here
 TMP_SAMPLES = "/tmp/samples"
@@ -17,12 +19,6 @@ os.makedirs(TMP_UPLOADS, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Points to 'backend/'
 JAVA_OUT_DIR = os.path.join(BASE_DIR, '..', 'java', 'out')  # => Equipment_Club/java/out
 SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
-
-import os
-import shutil
-import stat
-
-# ...
 
 SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
 if os.path.exists(SAMPLES_SOURCE) and os.listdir(SAMPLES_SOURCE):

@@ -1,6 +1,8 @@
+// Use the exact Heroku domain instead of 127.0.0.1
+const BASE_URL = "https://<your-heroku-app>.herokuapp.com";
+
 document.getElementById('fileForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     const fileInput = document.getElementById('fileUpload');
 
@@ -11,8 +13,8 @@ document.getElementById('fileForm').addEventListener('submit', async (e) => {
     formData.append('file', fileInput.files[0]);
 
     try {
-        // Send the uploaded file to the backend for processing
-        const response = await fetch('http://127.0.0.1:5000/process', {
+        // Call the backend on Heroku
+        const response = await fetch(`${BASE_URL}/process`, {
             method: 'POST',
             body: formData,
         });
@@ -24,7 +26,7 @@ document.getElementById('fileForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Load and process sample files by sending them to /process_sample/
+// Sample file buttons
 document.getElementById('sample1').addEventListener('click', async (e) => {
     e.preventDefault();
     await processSampleFile('sample1.txt');
@@ -35,13 +37,11 @@ document.getElementById('sample2').addEventListener('click', async (e) => {
     await processSampleFile('sample2.txt');
 });
 
-// Helper function to process sample files correctly
 async function processSampleFile(filename) {
     try {
-        const response = await fetch(`http://127.0.0.1:5000/process_sample/${filename}`, {
+        const response = await fetch(`${BASE_URL}/process_sample/${filename}`, {
             method: 'POST'
         });
-
         const output = await response.text();
         document.getElementById('output').innerText = output;
     } catch (error) {
