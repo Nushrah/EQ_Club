@@ -1,5 +1,5 @@
 // Use the exact Heroku domain instead of 127.0.0.1
-const BASE_URL = "https://<your-heroku-app>.herokuapp.com";
+const BASE_URL = "https://equipmentclub-6aa6f95c269e.herokuapp.com/";
 
 document.getElementById('fileForm').addEventListener('submit', async (e) => {
     e.preventDefault();
