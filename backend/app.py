@@ -15,6 +15,7 @@ os.makedirs(TMP_UPLOADS, exist_ok=True)
 
 # Define the source directory inside the repo
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Points to 'backend/'
+JAVA_OUT_DIR = os.path.join(BASE_DIR, '..', 'java', 'out')  # => Equipment_Club/java/out
 SAMPLES_SOURCE = os.path.join(BASE_DIR, 'samples')
 
 import os
@@ -90,8 +91,7 @@ def process_file():
 
     try:
         # Run the Java program with the uploaded file
-        result = subprocess.run(
-            ['java', '-cp', './java/out', 'Main', filepath],
+        result = subprocess.run(['java','-cp', JAVA_OUT_DIR,'Main',filepath],
             capture_output=True, text=True
         )
         return result.stdout  # Return the output from the Java program
@@ -112,8 +112,7 @@ def process_sample_file(filename):
 
     # Process the copied file just like a normal uploaded file
     try:
-        result = subprocess.run(
-            ['java', '-cp', './java/out', 'Main', upload_path],
+        result = subprocess.run(['java','-cp', JAVA_OUT_DIR,'Main',upload_path],
             capture_output=True, text=True
         )
         return result.stdout
